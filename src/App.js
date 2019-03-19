@@ -1,28 +1,39 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
+import React, { useEffect } from 'react';
+import { connect } from 'react-redux';
+import { fetchUsers } from '../src/store/users';
 import './App.css';
 
-class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
-      </div>
-    );
-  }
-}
+const App = props => {
+  useEffect(() => {
+    props.fetchUsers();
+  }, []);
 
-export default App;
+  const loading = props.state.users.loading;
+  const data = props.state.users.data.data;
+  const error = props.state.users.error;
+
+  const renderUsers = data => {
+    return data.map(users => {
+      return <h1 key={users.id}>{users.name}</h1>;
+    });
+  };
+
+  return (
+    <div className="App">
+      {error ? (
+        <div>{error}</div>
+      ) : loading ? (
+        <div>....loading</div>
+      ) : (
+        data && renderUsers(data)
+      )}
+    </div>
+  );
+};
+
+const mapStateToProps = state => ({ state });
+
+export default connect(
+  mapStateToProps,
+  { fetchUsers }
+)(App);
